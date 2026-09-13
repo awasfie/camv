@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Standalone output for a lean Docker build (Coolify deploy, TW-T7).
+  output: 'standalone',
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
   images: {
