@@ -137,13 +137,21 @@ function VideoConferenceComponent(props: {
   const [e2eeSetupComplete, setE2eeSetupComplete] = React.useState(false);
 
   const roomOptions = React.useMemo((): RoomOptions => {
-    let videoCodec: VideoCodec | undefined = props.options.codec ? props.options.codec : 'vp9';
+    // Default to h264: it has near-universal hardware decode support across
+    // phones/laptops, unlike vp9 which often falls back to CPU-bound
+    // software decode and can cause exactly the freezing/stutter Ahmed
+    // reported, especially over networks with real latency/jitter.
+    let videoCodec: VideoCodec | undefined = props.options.codec ? props.options.codec : 'h264';
     if (e2eeEnabled && (videoCodec === 'av1' || videoCodec === 'vp9')) {
       videoCodec = undefined;
     }
     const videoCaptureDefaults: VideoCaptureOptions = {
       deviceId: props.userChoices.videoDeviceId ?? undefined,
-      resolution: props.options.hq ? VideoPresets.h2160 : VideoPresets.h720,
+      // hq=true bumps capture to 1080p (not 4K/h2160): meaningfully sharper
+      // than the 720p default without the bandwidth/CPU cost of 4K, which
+      // is counterproductive on a network path with real jitter — a bigger
+      // capture resolution makes freezing worse, not better.
+      resolution: props.options.hq ? VideoPresets.h1080 : VideoPresets.h720,
     };
     const publishDefaults: TrackPublishDefaults = {
       dtx: false,
