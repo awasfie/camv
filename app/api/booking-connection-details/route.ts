@@ -9,10 +9,19 @@ import { ConnectionDetails } from '@/lib/types';
  *
  * Unlike the stock /api/connection-details route (which mints a token for
  * ANY roomName+participantName with no validation), this endpoint requires
- * a Timeway booking uid, validates the booking is real and within its
- * join window (±GRACE_MINUTES of start/end) via Timeway's internal
- * booking-window API, and only then issues a LiveKit token scoped to the
- * room tw-<bookingUid>.
+ * a Timeway booking uid and validates the booking is real and not
+ * cancelled/rejected via Timeway's internal booking-window API, and only
+ * then issues a LiveKit token scoped to the room tw-<bookingUid>.
+ *
+ * Per Ahmed (2026-09-14): the link is intentionally joinable at ANY time
+ * once the booking exists (not just within a tight window around the
+ * scheduled slot) -- people legitimately join early, or the meeting time
+ * gets changed over the phone without the booking record being updated
+ * first. The security property we actually care about is "only a real,
+ * still-active booking can be joined" (random/guessed room names are
+ * rejected), not "only within N minutes of the original slot". If you
+ * need to re-add a time restriction later, do it as an explicit,
+ * generous policy decision -- not a silent default.
  *
  * Room naming convention (tw-<bookingUid>) MUST match
  * packages/app-store/livekitvideo/lib/VideoApiAdapter.ts in the timeway repo.
@@ -23,9 +32,6 @@ const API_SECRET = process.env.LIVEKIT_API_SECRET;
 const LIVEKIT_URL = process.env.LIVEKIT_URL;
 const TIMEWAY_BASE_URL = process.env.TIMEWAY_BASE_URL || 'https://timeway.co';
 const CAMV_INTERNAL_SECRET = process.env.CAMV_INTERNAL_SECRET;
-
-// How early/late a participant may join relative to the booking window.
-const GRACE_MINUTES = 15;
 
 const COOKIE_KEY = 'random-participant-postfix';
 
@@ -45,7 +51,7 @@ async function fetchBookingWindow(bookingUid: string): Promise<BookingWindow | n
   }
   const res = await fetch(`${TIMEWAY_BASE_URL}/api/camv/booking-window/${bookingUid}`, {
     headers: { 'x-camv-internal-secret': CAMV_INTERNAL_SECRET },
-    // Never cache booking state — status/time can change (reschedule, cancel).
+    // Never cache booking state — status can change (reschedule, cancel).
     cache: 'no-store',
   });
   if (res.status === 404) return null;
@@ -53,14 +59,6 @@ async function fetchBookingWindow(bookingUid: string): Promise<BookingWindow | n
     throw new Error(`booking-window lookup failed: HTTP ${res.status}`);
   }
   return (await res.json()) as BookingWindow;
-}
-
-function isWithinJoinWindow(booking: BookingWindow): boolean {
-  const now = Date.now();
-  const start = new Date(booking.startTime).getTime();
-  const end = new Date(booking.endTime).getTime();
-  const graceMs = GRACE_MINUTES * 60 * 1000;
-  return now >= start - graceMs && now <= end + graceMs;
 }
 
 export async function GET(request: NextRequest) {
@@ -90,12 +88,6 @@ export async function GET(request: NextRequest) {
     }
     if (booking.status === 'CANCELLED' || booking.status === 'REJECTED') {
       return new NextResponse('This booking has been cancelled', { status: 403 });
-    }
-    if (!isWithinJoinWindow(booking)) {
-      return new NextResponse(
-        `Room is only joinable from ${GRACE_MINUTES} minutes before start until ${GRACE_MINUTES} minutes after end`,
-        { status: 403 },
-      );
     }
 
     const livekitServerUrl = region ? getLiveKitURL(LIVEKIT_URL, region) : LIVEKIT_URL;
