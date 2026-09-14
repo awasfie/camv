@@ -4,6 +4,7 @@ import React from 'react';
 import { decodePassphrase } from '@/lib/client-utils';
 import { DebugMode } from '@/lib/Debug';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
+import { MobileScreenShareNotice } from '@/lib/MobileScreenShareNotice';
 import { RecordingIndicator } from '@/lib/RecordingIndicator';
 import { SettingsMenu } from '@/lib/SettingsMenu';
 import { ConnectionDetails } from '@/lib/types';
@@ -259,6 +260,7 @@ function VideoConferenceComponent(props: {
         />
         <DebugMode />
         <RecordingIndicator />
+        <MobileScreenShareNotice />
       </RoomContext.Provider>
     </div>
   );
