@@ -9,12 +9,22 @@ import toast from 'react-hot-toast';
  * `MediaDevices` object. This is not a stale/UA-sniffed check in the
  * library -- it's a correct capability check.
  *
- * As of this writing, the Screen Capture API (`getDisplayMedia`) is a
- * desktop-only web platform feature: it is not implemented in mobile
- * Safari (iPhone/iPad), mobile Chrome/Firefox/Samsung Internet on
- * Android, or any mobile WebView, regardless of OS version. See MDN's
- * browser-compat-data for MediaDevices.getDisplayMedia -- every "mobile"
- * column reports "No support", including "Safari on iOS".
+ * Verified against caniuse.com's live compatibility table (checked
+ * 2026-09-15, includes Safari 26.6/27, the newest releases as of this
+ * writing): iOS Safari has ZERO support for getDisplayMedia() on any
+ * version to date, including the newest ones -- this is not a gap that
+ * a newer iPadOS closes, it is a platform limitation of WebKit on iOS.
+ * Every other mobile browser (Chrome/Firefox/Samsung Internet on
+ * Android, any mobile WebView) reports the same "not supported".
+ *
+ * This is also why Zoom/Google Meet/Teams's iPad screen share "just
+ * works" despite this: those are NATIVE App Store apps, not websites.
+ * They use iOS's ReplayKit Broadcast Upload Extension, a native-app-only
+ * API with no web equivalent. A web app running inside Safari (which is
+ * what Camv is) cannot reach that API -- no client-side code change can
+ * add it; it would require shipping and maintaining a separate native
+ * iOS app with a Broadcast Upload Extension target, a materially
+ * different and much larger project than a web fix.
  *
  * So on iPad/iPhone/Android browsers there genuinely is no button to
  * show: calling `room.localParticipant.setScreenShareEnabled(true)`
