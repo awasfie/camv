@@ -54,8 +54,10 @@ export function PageClientImpl(props: {
   const [connectionDetails, setConnectionDetails] = React.useState<ConnectionDetails | undefined>(
     undefined,
   );
+  const [joinError, setJoinError] = React.useState<string | undefined>(undefined);
 
   const handlePreJoinSubmit = React.useCallback(async (values: LocalUserChoices) => {
+    setJoinError(undefined);
     setPreJoinChoices(values);
     const url = new URL(CONN_DETAILS_ENDPOINT, window.location.origin);
     url.searchParams.append('roomName', props.roomName);
@@ -64,6 +66,12 @@ export function PageClientImpl(props: {
       url.searchParams.append('region', props.region);
     }
     const connectionDetailsResp = await fetch(url.toString());
+    if (!connectionDetailsResp.ok) {
+      const message = await connectionDetailsResp.text().catch(() => connectionDetailsResp.statusText);
+      setJoinError(message || `Unable to join room (HTTP ${connectionDetailsResp.status})`);
+      setPreJoinChoices(undefined);
+      return;
+    }
     const connectionDetailsData = await connectionDetailsResp.json();
     setConnectionDetails(connectionDetailsData);
   }, []);
@@ -73,11 +81,28 @@ export function PageClientImpl(props: {
     <main data-lk-theme="default" style={{ height: '100%' }}>
       {connectionDetails === undefined || preJoinChoices === undefined ? (
         <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-          <PreJoin
-            defaults={preJoinDefaults}
-            onSubmit={handlePreJoinSubmit}
-            onError={handlePreJoinError}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {joinError ? (
+              <div
+                style={{
+                  color: '#fff',
+                  background: '#7f1d1d',
+                  border: '1px solid #ef4444',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  maxWidth: '24rem',
+                  fontSize: '0.875rem',
+                }}
+              >
+                {joinError}
+              </div>
+            ) : null}
+            <PreJoin
+              defaults={preJoinDefaults}
+              onSubmit={handlePreJoinSubmit}
+              onError={handlePreJoinError}
+            />
+          </div>
         </div>
       ) : (
         <VideoConferenceComponent
