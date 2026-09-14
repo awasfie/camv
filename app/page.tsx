@@ -106,13 +106,13 @@ function CustomConnectionTab(props: { label: string }) {
   return (
     <form className={styles.tabContent} onSubmit={onSubmit}>
       <p style={{ marginTop: 0 }}>
-        Connect Camv with a custom server using LiveKit Cloud or LiveKit Server.
+        Connect Camv with a custom media server.
       </p>
       <input
         id="serverUrl"
         name="serverUrl"
         type="url"
-        placeholder="LiveKit Server URL: wss://*.livekit.cloud"
+        placeholder="Server URL: wss://your-server"
         required
       />
       <textarea
@@ -175,13 +175,7 @@ export default function Page() {
           </Tabs>
         </Suspense>
       </main>
-      <footer data-lk-theme="default">
-        Powered by Camv. Built with{' '}
-        <a href="https://github.com/livekit/components-js?ref=meet" rel="noopener">
-          LiveKit Components
-        </a>
-        .
-      </footer>
+      <footer data-lk-theme="default">Powered by Camv.</footer>
     </>
   );
 }

@@ -9,15 +9,14 @@ export const metadata: Metadata = {
     default: 'Camv | Video conferencing built for real connection',
     template: '%s | Camv',
   },
-  description:
-    'Camv is a video conferencing app for real-time audio and video experiences, built on LiveKit and Next.js.',
+  description: 'Camv is a video conferencing app built for real-time audio and video experiences.',
   twitter: {
     creator: '@camv',
     site: '@camv',
     card: 'summary_large_image',
   },
   openGraph: {
-    url: 'https://camv.app',
+    url: 'https://camv.co',
     images: [
       {
         url: '/images/camv-meet-open-graph.png',
