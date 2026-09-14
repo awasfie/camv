@@ -33,7 +33,13 @@ import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
 
 const CONN_DETAILS_ENDPOINT =
   process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ?? '/api/connection-details';
-const SHOW_SETTINGS_MENU = process.env.NEXT_PUBLIC_SHOW_SETTINGS_MENU == 'true';
+// Recording (Egress) is a self-hosted feature independent of the LiveKit-Cloud-oriented
+// settings menu flag -- show the Settings panel (which hosts the Record tab) whenever
+// either flag is set, so the Record button is reachable without also opting into the
+// full device-settings menu.
+const SHOW_SETTINGS_MENU =
+  process.env.NEXT_PUBLIC_SHOW_SETTINGS_MENU == 'true' ||
+  !!process.env.NEXT_PUBLIC_LK_RECORD_ENDPOINT;
 
 export function PageClientImpl(props: {
   roomName: string;

@@ -20,12 +20,25 @@ export async function GET(req: NextRequest) {
       LIVEKIT_API_KEY,
       LIVEKIT_API_SECRET,
       LIVEKIT_URL,
-      S3_KEY_ID,
-      S3_KEY_SECRET,
-      S3_BUCKET,
-      S3_ENDPOINT,
-      S3_REGION,
+      RECORDING_S3_ACCESS_KEY,
+      RECORDING_S3_SECRET_KEY,
+      RECORDING_S3_BUCKET,
+      RECORDING_S3_ENDPOINT,
+      RECORDING_S3_REGION,
     } = process.env;
+
+    if (
+      !RECORDING_S3_BUCKET ||
+      !RECORDING_S3_ENDPOINT ||
+      !RECORDING_S3_ACCESS_KEY ||
+      !RECORDING_S3_SECRET_KEY
+    ) {
+      return new NextResponse(
+        'Recording storage is not configured on this deployment. Set RECORDING_S3_BUCKET, ' +
+          'RECORDING_S3_ENDPOINT, RECORDING_S3_ACCESS_KEY and RECORDING_S3_SECRET_KEY, then redeploy.',
+        { status: 501 },
+      );
+    }
 
     const hostURL = new URL(LIVEKIT_URL!);
     hostURL.protocol = 'https:';
@@ -42,11 +55,12 @@ export async function GET(req: NextRequest) {
       output: {
         case: 's3',
         value: new S3Upload({
-          endpoint: S3_ENDPOINT,
-          accessKey: S3_KEY_ID,
-          secret: S3_KEY_SECRET,
-          region: S3_REGION,
-          bucket: S3_BUCKET,
+          endpoint: RECORDING_S3_ENDPOINT,
+          accessKey: RECORDING_S3_ACCESS_KEY,
+          secret: RECORDING_S3_SECRET_KEY,
+          region: RECORDING_S3_REGION,
+          bucket: RECORDING_S3_BUCKET,
+          forcePathStyle: true,
         }),
       },
     });
