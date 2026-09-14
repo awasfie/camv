@@ -54,7 +54,7 @@ function DemoMeetingTab(props: { label: string }) {
   };
   return (
     <div className={styles.tabContent}>
-      <p style={{ margin: 0 }}>Try LiveKit Meet for free with our live demo project.</p>
+      <p style={{ margin: 0 }}>Try Camv for free with our live demo project.</p>
       <button style={{ marginTop: '1rem' }} className="lk-button" onClick={startMeeting}>
         Start Meeting
       </button>
@@ -106,7 +106,7 @@ function CustomConnectionTab(props: { label: string }) {
   return (
     <form className={styles.tabContent} onSubmit={onSubmit}>
       <p style={{ marginTop: 0 }}>
-        Connect LiveKit Meet with a custom server using LiveKit Cloud or LiveKit Server.
+        Connect Camv with a custom server using LiveKit Cloud or LiveKit Server.
       </p>
       <input
         id="serverUrl"
@@ -165,18 +165,8 @@ export default function Page() {
     <>
       <main className={styles.main} data-lk-theme="default">
         <div className="header">
-          <img src="/images/livekit-meet-home.svg" alt="LiveKit Meet" width="360" height="45" />
-          <h2>
-            Open source video conferencing app built on{' '}
-            <a href="https://github.com/livekit/components-js?ref=meet" rel="noopener">
-              LiveKit&nbsp;Components
-            </a>
-            ,{' '}
-            <a href="https://livekit.io/cloud?ref=meet" rel="noopener">
-              LiveKit&nbsp;Cloud
-            </a>{' '}
-            and Next.js.
-          </h2>
+          <img src="/images/camv-meet-home.svg" alt="Camv" width="240" height="60" />
+          <h2>Video conferencing built for real connection.</h2>
         </div>
         <Suspense fallback="Loading">
           <Tabs>
@@ -186,13 +176,9 @@ export default function Page() {
         </Suspense>
       </main>
       <footer data-lk-theme="default">
-        Hosted on{' '}
-        <a href="https://livekit.io/cloud?ref=meet" rel="noopener">
-          LiveKit Cloud
-        </a>
-        . Source code on{' '}
-        <a href="https://github.com/livekit/meet?ref=meet" rel="noopener">
-          GitHub
+        Powered by Camv. Built with{' '}
+        <a href="https://github.com/livekit/components-js?ref=meet" rel="noopener">
+          LiveKit Components
         </a>
         .
       </footer>

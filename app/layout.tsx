@@ -6,27 +6,27 @@ import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: {
-    default: 'LiveKit Meet | Conference app build with LiveKit open source',
-    template: '%s',
+    default: 'Camv | Video conferencing built for real connection',
+    template: '%s | Camv',
   },
   description:
-    'LiveKit is an open source WebRTC project that gives you everything needed to build scalable and real-time audio and/or video experiences in your applications.',
+    'Camv is a video conferencing app for real-time audio and video experiences, built on LiveKit and Next.js.',
   twitter: {
-    creator: '@livekitted',
-    site: '@livekitted',
+    creator: '@camv',
+    site: '@camv',
     card: 'summary_large_image',
   },
   openGraph: {
-    url: 'https://meet.livekit.io',
+    url: 'https://camv.app',
     images: [
       {
-        url: 'https://meet.livekit.io/images/livekit-meet-open-graph.png',
-        width: 2000,
-        height: 1000,
+        url: '/images/camv-meet-open-graph.png',
+        width: 1500,
+        height: 750,
         type: 'image/png',
       },
     ],
-    siteName: 'LiveKit Meet',
+    siteName: 'Camv',
   },
   icons: {
     icon: {
@@ -36,16 +36,16 @@ export const metadata: Metadata = {
     apple: [
       {
         rel: 'apple-touch-icon',
-        url: '/images/livekit-apple-touch.png',
+        url: '/images/camv-apple-touch.png',
         sizes: '180x180',
       },
-      { rel: 'mask-icon', url: '/images/livekit-safari-pinned-tab.svg', color: '#070707' },
+      { rel: 'mask-icon', url: '/images/camv-safari-pinned-tab.svg', color: '#102A5C' },
     ],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#070707',
+  themeColor: '#102A5C',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Noto Sans'; src: url('../fonts/NotoSans-Regular.ttf'); font-weight: 400; }
+  @font-face { font-family: 'Noto Sans'; src: url('../fonts/NotoSans-Bold.ttf'); font-weight: 700; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ffffff; color: #102A5C; font-family: 'Noto Sans', sans-serif; }
+  .board { width: 1920px; height: 1080px; padding: 72px 108px 62px; overflow: hidden; }
+  header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:38px; border-bottom:1px solid #DDE4EC; }
+  h1 { margin:0; font-size:42px; line-height:1.1; letter-spacing:-1.8px; }
+  .meta { margin-top:9px; font-size:20px; color:#536174; }
+  .approval { text-align:right; font-size:18px; line-height:1.5; color:#536174; }
+  .approval strong { color:#F06C62; }
+  .grid { display:grid; grid-template-columns:1.45fr 1fr; gap:34px; margin-top:37px; }
+  .card { border:1px solid #DDE4EC; border-radius:16px; overflow:hidden; background:#fff; }
+  .card .label { padding:20px 24px 17px; font-size:17px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:#102A5C; }
+  .surface { height:165px; padding:31px 42px; display:flex; align-items:center; }
+  .light { background:#F5F7FA; }
+  .dark { background:#102A5C; }
+  .white { background:#fff; }
+  .surface img { max-width:100%; max-height:100%; object-fit:contain; object-position:left center; }
+  .icons { display:flex; gap:27px; align-items:center; padding:21px 28px 32px; }
+  .icons img { width:138px; height:138px; }
+  .copy { color:#536174; font-size:18px; line-height:1.55; padding:0 28px 27px; }
+  .palette { display:flex; gap:16px; padding:24px 28px 28px; }
+  .swatch { flex:1; }
+  .colour { height:95px; border-radius:12px; border:1px solid #DDE4EC; }
+  .swatch strong { display:block; font-size:16px; margin-top:12px; }
+  .swatch span { display:block; color:#536174; font-size:15px; margin-top:2px; }
+  .bottom { margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:34px; }
+  .note { padding:22px 27px; border-top:1px solid #DDE4EC; }
+  .note h2 { margin:0 0 8px; font-size:18px; letter-spacing:.2px; }
+  .note p { margin:0; color:#536174; font-size:16px; line-height:1.5; }
+  footer { margin-top:25px; color:#8190A3; font-size:14px; display:flex; justify-content:space-between; }
+</style>
+</head>
+<body>
+<main class="board">
+  <header>
+    <div><h1>Camv Brand System</h1><div class="meta">Approved identity proof board · Version 1.0</div></div>
+    <div class="approval"><strong>Approved core system</strong><br>Human Alignment emblem · September 2026</div>
+  </header>
+  <section class="grid">
+    <div class="card"><div class="label">Primary signature · light surfaces</div><div class="surface light"><img src="../logo/svg/camv-logo-primary.svg"></div></div>
+    <div class="card"><div class="label">Reverse signature · dark surfaces</div><div class="surface dark"><img src="../logo/svg/camv-logo-reverse.svg"></div></div>
+    <div class="card"><div class="label">Monochrome production variants</div><div class="surface white" style="gap:48px"><img src="../logo/svg/camv-logo-mono-ink.svg" style="width:45%;max-width:45%"><div style="width:45%;height:96px;background:#102A5C;padding:20px 24px;border-radius:8px;display:flex;align-items:center"><img src="../logo/svg/camv-logo-mono-white.svg" style="width:100%;max-width:100%;max-height:55px"></div></div></div>
+    <div class="card"><div class="label">Icon system</div><div class="icons"><img src="../app-icon/svg/camv-app-icon-dark.svg"><img src="../app-icon/svg/camv-app-icon-light.svg"><img src="../logo/svg/camv-emblem-master.svg" style="width:116px;height:116px"></div><div class="copy">Dark app tile · Light app tile · Standalone master emblem</div></div>
+  </section>
+  <section class="bottom">
+    <div class="card"><div class="label">Approved palette</div><div class="palette"><div class="swatch"><div class="colour" style="background:#102A5C"></div><strong>Ink</strong><span>#102A5C</span></div><div class="swatch"><div class="colour" style="background:#F06C62"></div><strong>Coral</strong><span>#F06C62</span></div><div class="swatch"><div class="colour" style="background:#536174"></div><strong>Slate</strong><span>#536174</span></div><div class="swatch"><div class="colour" style="background:#F5F7FA"></div><strong>Mist</strong><span>#F5F7FA</span></div></div></div>
+    <div class="note"><h2>Use with clarity</h2><p>Keep clear space equal to the emblem’s central shared opening. Use the supplied vectors without alteration; never stretch, crop, rotate, recolour, shadow, or separate the emblem forms.</p></div>
+  </section>
+  <footer><span>camv.co</span><span>Meet clearly. Work naturally.</span></footer>
+</main>
+</body>
+</html>
