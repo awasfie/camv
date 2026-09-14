@@ -1,10 +1,42 @@
+/* ---------------------------------------------------------------------- */
+/* Camv brand tokens                                                       */
+/* Camv Ink #102A5C · Camv Coral #F06C62 · Camv Slate #536174               */
+/* Camv Mist #F5F7FA · White #FFFFFF                                       */
+/* ---------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('/fonts/NotoSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('/fonts/NotoSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --camv-ink: #102a5c;
+  --camv-ink-hover: #16346f;
+  --camv-coral: #f06c62;
+  --camv-coral-hover: #e0564c;
+  --camv-slate: #536174;
+  --camv-mist: #f5f7fa;
+  --camv-white: #ffffff;
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
   color-scheme: dark;
-  background-color: #111;
+  background-color: var(--camv-ink);
 }
 
 html,
@@ -18,8 +50,97 @@ body {
 body {
   display: flex;
   flex-direction: column;
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
 }
 
+/* ------------------------------------------------------------------ */
+/* Override LiveKit component library theme tokens with Camv palette.  */
+/* @livekit/components-styles reads these custom properties for every  */
+/* prefab (PreJoin, VideoConference, control bar, dialogs, menus...).   */
+/* ------------------------------------------------------------------ */
+[data-lk-theme='default'] {
+  --lk-font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
+
+  --lk-bg: var(--camv-ink);
+  --lk-bg2: #17356e;
+  --lk-bg3: #1d3f80;
+  --lk-bg4: #234a92;
+  --lk-bg5: #2955a4;
+
+  --lk-fg: var(--camv-white);
+  --lk-fg2: var(--camv-mist);
+  --lk-fg3: #e3e8ef;
+  --lk-fg4: #cfd6e0;
+  --lk-fg5: var(--camv-slate);
+
+  --lk-border-color: rgba(245, 247, 250, 0.14);
+
+  /* Primary accent = Camv Coral, used for active/selected controls */
+  --lk-accent-fg: var(--camv-white);
+  --lk-accent-bg: var(--camv-coral);
+  --lk-accent2: var(--camv-coral-hover);
+  --lk-accent3: #d1483f;
+  --lk-accent4: #b93a32;
+
+  --lk-danger-fg: var(--camv-white);
+  --lk-danger: var(--camv-coral);
+  --lk-danger2: var(--camv-coral-hover);
+  --lk-danger3: #d1483f;
+  --lk-danger4: #b93a32;
+
+  --lk-control-fg: var(--camv-white);
+  --lk-control-bg: var(--camv-bg3, #1d3f80);
+  --lk-control-hover-bg: var(--camv-coral);
+  --lk-control-active-bg: var(--camv-coral);
+  --lk-control-active-hover-bg: var(--camv-coral-hover);
+
+  --lk-border-radius: 0.75rem;
+}
+
+/* Buttons ------------------------------------------------------------- */
+.lk-button,
+.lk-start-audio-button,
+.lk-chat-toggle,
+.lk-disconnect-button {
+  font-weight: 700;
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.lk-button:not(:disabled):hover,
+.lk-start-audio-button:not(:disabled):hover,
+.lk-chat-toggle:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.lk-disconnect-button {
+  background-color: var(--camv-coral) !important;
+  color: var(--camv-white) !important;
+}
+
+.lk-disconnect-button:hover {
+  background-color: var(--camv-coral-hover) !important;
+}
+
+/* Prejoin / general form controls -------------------------------------- */
+[data-lk-theme] .lk-form-control {
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
+}
+
+.lk-prejoin .lk-button.lk-join-button {
+  background-color: var(--camv-coral);
+  color: var(--camv-white);
+  font-weight: 700;
+}
+
+.lk-prejoin .lk-button.lk-join-button:not(:disabled):hover {
+  background-color: var(--camv-coral-hover);
+}
+
+/* Home page header ------------------------------------------------------ */
 .header {
   max-width: 500px;
   padding-inline: 2rem;
@@ -32,34 +153,36 @@ body {
 }
 
 .header > h2 {
-  font-family: 'TWK Everett', sans-serif;
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 1.25rem;
   line-height: 144%;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--camv-mist);
 }
 
 footer {
   width: 100%;
   padding: 1.5rem 2rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--camv-mist);
   background-color: var(--lk-bg);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid rgba(245, 247, 250, 0.14);
+  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
 }
 
 footer a,
 h2 a {
-  color: #ff6352;
-  text-decoration-color: #a33529;
+  color: var(--camv-coral);
+  text-decoration-color: var(--camv-coral-hover);
   text-underline-offset: 0.125em;
+  font-weight: 700;
 }
 
 footer a:hover,
-h2 a {
-  text-decoration-color: #ff6352;
+h2 a:hover {
+  text-decoration-color: var(--camv-coral);
 }
 
 h2 a {

@@ -86,12 +86,13 @@ export function PageClientImpl(props: {
               <div
                 style={{
                   color: '#fff',
-                  background: '#7f1d1d',
-                  border: '1px solid #ef4444',
-                  borderRadius: '0.5rem',
+                  background: '#102A5C',
+                  border: '1px solid #F06C62',
+                  borderRadius: '0.75rem',
                   padding: '0.75rem 1rem',
                   maxWidth: '24rem',
                   fontSize: '0.875rem',
+                  fontFamily: "'Noto Sans', system-ui, -apple-system, sans-serif",
                 }}
               >
                 {joinError}

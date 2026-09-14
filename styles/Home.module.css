@@ -21,12 +21,20 @@
   gap: 0.125rem;
   padding: 0.125rem;
   margin: 0 auto 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 247, 250, 0.14);
+  border-radius: 0.75rem;
+  background-color: rgba(245, 247, 250, 0.04);
 }
 
 .tabSelect > * {
   width: 100%;
+  font-weight: 700;
+  border-radius: 0.625rem !important;
+}
+
+.tabSelect > *[aria-pressed='true'] {
+  background-color: var(--camv-coral, #f06c62) !important;
+  color: #fff !important;
 }
 
 .tabContent {
@@ -35,6 +43,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 0.5rem;
+  border: 1px solid rgba(245, 247, 250, 0.14);
+  border-radius: 0.75rem;
+  background-color: rgba(245, 247, 250, 0.03);
 }
