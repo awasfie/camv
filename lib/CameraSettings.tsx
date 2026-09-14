@@ -6,7 +6,7 @@ import {
   useLocalParticipant,
   VideoTrack,
 } from '@livekit/components-react';
-import { BackgroundBlur, VirtualBackground } from '@livekit/track-processors';
+import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { isLocalTrack, LocalTrackPublication, Track } from 'livekit-client';
 import Desk from '../public/background-images/samantha-gades-BlIhVfXbi9s-unsplash.jpg';
 import Nature from '../public/background-images/ali-kazal-tbw_KQE3Cbg-unsplash.jpg';
@@ -34,6 +34,26 @@ export function CameraSettings() {
     null,
   );
 
+  // `@livekit/track-processors` renders backgrounds via a WebGL2 canvas
+  // pipeline. On devices/browsers where WebGL2 context creation fails
+  // (older iPads, some Android WebViews, GPU-restricted browsers), the
+  // library used to fail *silently* mid-pipeline: the camera track kept
+  // "publishing" to a canvas that never received a painted frame, which
+  // looked exactly like a black, frozen camera -- with no error surfaced
+  // to the user or the console. `supportsBackgroundProcessors()` runs the
+  // real WebGL2/OffscreenCanvas capability check up front so we can
+  // disable these controls entirely, with an explanation, instead of
+  // silently breaking the call.
+  const [backgroundEffectsSupported] = React.useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return supportsBackgroundProcessors();
+    } catch {
+      return false;
+    }
+  });
+  const [processorError, setProcessorError] = React.useState<string | null>(null);
+
   const camTrackRef: TrackReference | undefined = React.useMemo(() => {
     return cameraTrack
       ? { participant: localParticipant, publication: cameraTrack, source: Track.Source.Camera }
@@ -41,6 +61,8 @@ export function CameraSettings() {
   }, [localParticipant, cameraTrack]);
 
   const selectBackground = (type: BackgroundType, imagePath?: string) => {
+    if (!backgroundEffectsSupported) return;
+    setProcessorError(null);
     setBackgroundType(type);
     if (type === 'image' && imagePath) {
       setVirtualBackgroundImagePath(imagePath);
@@ -50,16 +72,49 @@ export function CameraSettings() {
   };
 
   React.useEffect(() => {
-    if (isLocalTrack(cameraTrack?.track)) {
-      if (backgroundType === 'blur') {
-        cameraTrack.track?.setProcessor(BackgroundBlur());
-      } else if (backgroundType === 'image' && virtualBackgroundImagePath) {
-        cameraTrack.track?.setProcessor(VirtualBackground(virtualBackgroundImagePath));
-      } else {
-        cameraTrack.track?.stopProcessor();
+    if (!backgroundEffectsSupported) return;
+    const track = cameraTrack?.track;
+    if (!isLocalTrack(track)) return;
+
+    let cancelled = false;
+
+    const apply = async () => {
+      try {
+        if (backgroundType === 'blur') {
+          await track.setProcessor(BackgroundProcessor({ mode: 'background-blur' }));
+        } else if (backgroundType === 'image' && virtualBackgroundImagePath) {
+          await track.setProcessor(
+            BackgroundProcessor({ mode: 'virtual-background', imagePath: virtualBackgroundImagePath }),
+          );
+        } else {
+          await track.stopProcessor();
+        }
+      } catch (err) {
+        // If the processor genuinely fails at runtime (rather than being
+        // caught by the upfront capability check), fall back to a plain
+        // camera feed instead of leaving the track stuck on a broken
+        // processor -- a live, un-blurred camera beats a frozen black one.
+        if (cancelled) return;
+        console.error('Camv: background processor failed, falling back to plain camera', err);
+        setProcessorError(
+          'This effect could not be applied on this device/browser. Your camera has been kept on without it.',
+        );
+        setBackgroundType('none');
+        setVirtualBackgroundImagePath(null);
+        try {
+          await track.stopProcessor();
+        } catch {
+          // best-effort cleanup
+        }
       }
-    }
-  }, [cameraTrack, backgroundType, virtualBackgroundImagePath]);
+    };
+
+    apply();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cameraTrack, backgroundType, virtualBackgroundImagePath, backgroundEffectsSupported]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -84,11 +139,32 @@ export function CameraSettings() {
 
       <div style={{ marginTop: '10px' }}>
         <div style={{ marginBottom: '8px' }}>Background Effects</div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+
+        {!backgroundEffectsSupported && (
+          <p style={{ fontSize: '13px', opacity: 0.8, marginTop: 0 }}>
+            Background blur and virtual backgrounds aren&apos;t supported on this device or
+            browser (this needs WebGL2 support). Your camera will stay on without an effect.
+          </p>
+        )}
+
+        {processorError && (
+          <p style={{ fontSize: '13px', color: '#e5484d', marginTop: 0 }}>{processorError}</p>
+        )}
+
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            flexWrap: 'wrap',
+            opacity: backgroundEffectsSupported ? 1 : 0.4,
+            pointerEvents: backgroundEffectsSupported ? 'auto' : 'none',
+          }}
+        >
           <button
             onClick={() => selectBackground('none')}
             className="lk-button"
             aria-pressed={backgroundType === 'none'}
+            disabled={!backgroundEffectsSupported}
             style={{
               border: backgroundType === 'none' ? '2px solid #0090ff' : '1px solid #d1d1d1',
               minWidth: '80px',
@@ -101,6 +177,7 @@ export function CameraSettings() {
             onClick={() => selectBackground('blur')}
             className="lk-button"
             aria-pressed={backgroundType === 'blur'}
+            disabled={!backgroundEffectsSupported}
             style={{
               border: backgroundType === 'blur' ? '2px solid #0090ff' : '1px solid #d1d1d1',
               minWidth: '80px',
@@ -144,6 +221,7 @@ export function CameraSettings() {
               aria-pressed={
                 backgroundType === 'image' && virtualBackgroundImagePath === image.path.src
               }
+              disabled={!backgroundEffectsSupported}
               style={{
                 backgroundImage: `url(${image.path.src})`,
                 backgroundSize: 'cover',

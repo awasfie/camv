@@ -21,8 +21,8 @@ importers:
         specifier: 0.4.4
         version: 0.4.4(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))
       '@livekit/track-processors':
-        specifier: ^0.7.0
-        version: 0.7.0(@types/dom-mediacapture-transform@0.1.11)(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))
+        specifier: ^0.8.0
+        version: 0.8.0(@types/dom-mediacapture-transform@0.1.11)(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))
       livekit-client:
         specifier: 2.22.2
         version: 2.22.2(@types/dom-mediacapture-record@1.0.22)
@@ -506,8 +506,8 @@ packages:
   '@livekit/protocol@1.50.4':
     resolution: {integrity: sha512-L1uggNQAqyY21smQY8AllyOYbcv9Me9TaxwuLytL1R8ck9nbYPmQLNwEDi3pOFGAMa5F8I2nUi2Jc59W5awxlA==}
 
-  '@livekit/track-processors@0.7.0':
-    resolution: {integrity: sha512-ERdByDrHPLA8xzZNFcqWiLt5ZJs4AZo1RjDlYplb//xeaWURaJdulqrds5EHSMHmELmTzlEOSgvSrzFlatlJQQ==}
+  '@livekit/track-processors@0.8.0':
+    resolution: {integrity: sha512-P24RXYodZqcJ5lXYbOp0er1b7WUisHFd267i3cgleQQOGt2jHBqwgRo0V9koEIEAR8J45zSr6zK3IuLUOwwNfA==}
     peerDependencies:
       '@types/dom-mediacapture-transform': ^0.1.9
       livekit-client: ^1.12.0 || ^2.1.0
@@ -2708,7 +2708,7 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
-  '@livekit/track-processors@0.7.0(@types/dom-mediacapture-transform@0.1.11)(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))':
+  '@livekit/track-processors@0.8.0(@types/dom-mediacapture-transform@0.1.11)(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))':
     dependencies:
       '@mediapipe/tasks-vision': 0.10.14
       '@types/dom-mediacapture-transform': 0.1.11
