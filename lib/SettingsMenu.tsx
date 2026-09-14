@@ -12,6 +12,7 @@ import styles from '../styles/SettingsMenu.module.css';
 import { CameraSettings } from './CameraSettings';
 import { MicrophoneSettings } from './MicrophoneSettings';
 import { QualitySettings } from './QualitySettings';
+import { useHost } from './HostContext';
 /**
  * @alpha
  */
@@ -23,15 +24,20 @@ export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> 
 export function SettingsMenu(props: SettingsMenuProps) {
   const layoutContext = useMaybeLayoutContext();
   const room = useRoomContext();
+  const { isHost, hostProof } = useHost();
   const recordingEndpoint = process.env.NEXT_PUBLIC_LK_RECORD_ENDPOINT;
 
   const settings = React.useMemo(() => {
     return {
       media: { camera: true, microphone: true, label: 'Media Devices', speaker: true },
       quality: { label: 'Video Quality' },
-      recording: recordingEndpoint ? { label: 'Recording' } : undefined,
+      // Recording used to be startable/stoppable by anyone in the room --
+      // Ahmed: "it should [not] be that anyone [can] stop and start the
+      // recording". Only show this tab to the participant Camv identified
+      // as the meeting's host (via Timeway's booking record).
+      recording: recordingEndpoint && isHost ? { label: 'Recording' } : undefined,
     };
-  }, []);
+  }, [recordingEndpoint, isHost]);
 
   const tabs = React.useMemo(
     () => Object.keys(settings).filter((t) => t !== undefined) as Array<keyof typeof settings>,
@@ -58,11 +64,12 @@ export function SettingsMenu(props: SettingsMenuProps) {
     }
     setProcessingRecRequest(true);
     setInitialRecStatus(isRecording);
+    const proofParam = hostProof ? `&hostProof=${encodeURIComponent(hostProof)}` : '';
     let response: Response;
     if (isRecording) {
-      response = await fetch(recordingEndpoint + `/stop?roomName=${room.name}`);
+      response = await fetch(recordingEndpoint + `/stop?roomName=${room.name}${proofParam}`);
     } else {
-      response = await fetch(recordingEndpoint + `/start?roomName=${room.name}`);
+      response = await fetch(recordingEndpoint + `/start?roomName=${room.name}${proofParam}`);
     }
     if (response.ok) {
     } else {

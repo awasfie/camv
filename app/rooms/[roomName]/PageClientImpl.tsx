@@ -6,6 +6,7 @@ import { DebugMode } from '@/lib/Debug';
 import { KeyboardShortcuts } from '@/lib/KeyboardShortcuts';
 import { MobileScreenShareNotice } from '@/lib/MobileScreenShareNotice';
 import { VideoFreezeWatchdog } from '@/lib/VideoFreezeWatchdog';
+import { HostProvider } from '@/lib/HostContext';
 import { RecordingIndicator } from '@/lib/RecordingIndicator';
 import { SettingsMenu } from '@/lib/SettingsMenu';
 import { ConnectionDetails } from '@/lib/types';
@@ -268,15 +269,17 @@ function VideoConferenceComponent(props: {
   return (
     <div className="lk-room-container">
       <RoomContext.Provider value={room}>
-        <KeyboardShortcuts />
-        <VideoConference
-          chatMessageFormatter={formatChatMessageLinks}
-          SettingsComponent={SHOW_SETTINGS_MENU ? SettingsMenu : undefined}
-        />
-        <DebugMode />
-        <RecordingIndicator />
-        <MobileScreenShareNotice />
-        <VideoFreezeWatchdog />
+        <HostProvider isHost={!!props.connectionDetails.isHost} hostProof={props.connectionDetails.hostProof}>
+          <KeyboardShortcuts />
+          <VideoConference
+            chatMessageFormatter={formatChatMessageLinks}
+            SettingsComponent={SHOW_SETTINGS_MENU ? SettingsMenu : undefined}
+          />
+          <DebugMode />
+          <RecordingIndicator />
+          <MobileScreenShareNotice />
+          <VideoFreezeWatchdog />
+        </HostProvider>
       </RoomContext.Provider>
     </div>
   );

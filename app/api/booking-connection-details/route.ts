@@ -2,6 +2,7 @@ import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-s
 import { NextRequest, NextResponse } from 'next/server';
 import { randomString } from '@/lib/client-utils';
 import { getLiveKitURL } from '@/lib/getLiveKitURL';
+import { mintHostProof } from '@/lib/hostProof';
 import { ConnectionDetails } from '@/lib/types';
 
 /**
@@ -92,6 +93,20 @@ export async function GET(request: NextRequest) {
 
     const livekitServerUrl = region ? getLiveKitURL(LIVEKIT_URL, region) : LIVEKIT_URL;
 
+    // Determine host status by matching the joining participant's name
+    // (Timeway passes the booking attendee/host's real name at join time)
+    // against the booking's host name/email as recorded by Timeway. This
+    // is a name-match, not a login -- Camv has no account system -- so
+    // it's a reasonable-effort match rather than a cryptographic identity
+    // check; combined with the room already requiring a real, active
+    // booking uid, it's a meaningful improvement over "anyone in the room
+    // can record" without requiring a whole auth system.
+    const normalizedParticipant = participantName.trim().toLowerCase();
+    const isHost =
+      !!booking.host &&
+      ((booking.host.name && booking.host.name.trim().toLowerCase() === normalizedParticipant) ||
+        booking.host.email.trim().toLowerCase() === normalizedParticipant);
+
     let randomParticipantPostfix = request.cookies.get(COOKIE_KEY)?.value;
     if (!randomParticipantPostfix) {
       randomParticipantPostfix = randomString(4);
@@ -111,6 +126,8 @@ export async function GET(request: NextRequest) {
       roomName,
       participantToken,
       participantName,
+      isHost,
+      hostProof: isHost ? mintHostProof(roomName) : undefined,
     };
     return new NextResponse(JSON.stringify(data), {
       headers: {

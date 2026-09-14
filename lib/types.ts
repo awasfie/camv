@@ -25,4 +25,9 @@ export type ConnectionDetails = {
   roomName: string;
   participantName: string;
   participantToken: string;
+  /** True if this participant matched the booking's host per Timeway. */
+  isHost?: boolean;
+  /** Short-lived HMAC proof, present only when isHost is true, required
+   * by /api/record/start and /api/record/stop to authorize the request. */
+  hostProof?: string;
 };
