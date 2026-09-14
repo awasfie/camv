@@ -76,7 +76,17 @@ export function SettingsMenu(props: SettingsMenuProps) {
   };
 
   return (
-    <div className="settings-menu" style={{ width: '100%', position: 'relative' }} {...props}>
+    <div
+      className="settings-menu"
+      style={{
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      {...props}
+    >
       <div className={styles.tabs}>
         {tabs.map(
           (tab) =>
@@ -95,7 +105,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
             ),
         )}
       </div>
-      <div className="tab-content">
+      <div className="tab-content" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {activeTab === 'media' && (
           <>
             {settings.media && settings.media.camera && (

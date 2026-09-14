@@ -15,3 +15,21 @@
 .tabs > .tab[aria-pressed='true'] {
   border-color: var(--lk-accent-bg);
 }
+
+/* Camv: on narrow screens (phones, iPads in portrait) give the settings
+ * panel room to breathe -- scrollable tab row instead of tabs wrapping or
+ * overflowing, and a taller scrollable content area so every control
+ * (camera preview, device pickers, quality/background buttons) is
+ * reachable instead of getting clipped by the modal's fixed height. */
+@media screen and (max-width: 768px) {
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .tabs > .tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
