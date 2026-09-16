@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomString } from '@/lib/client-utils';
 import { getLiveKitURL } from '@/lib/getLiveKitURL';
 import { mintHostProof } from '@/lib/hostProof';
+import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 import { ConnectionDetails } from '@/lib/types';
 
 /**
@@ -84,6 +85,22 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Unrecognized room name format', { status: 400 });
     }
     const bookingUid = roomName.slice('tw-'.length);
+
+    // RA-T3 (Bible v11.5): rate limit both per-IP (generic abuse/scanning)
+    // and per-booking (a specific room being hammered, e.g. a leaked link
+    // used for a join-flood or someone brute-forcing a host-name guess).
+    const ip = clientIp(request.headers);
+    const [ipLimit, bookingLimit] = await Promise.all([
+      checkRateLimit(`booking-details:ip:${ip}`, 30, 60),
+      checkRateLimit(`booking-details:booking:${bookingUid}`, 60, 60),
+    ]);
+    if (!ipLimit.allowed || !bookingLimit.allowed) {
+      const tightest = ipLimit.allowed ? bookingLimit : ipLimit;
+      return NextResponse.json(
+        { error: 'rate_limited', message: 'Too many join attempts, try again shortly.' },
+        { status: 429, headers: rateLimitHeaders(tightest) },
+      );
+    }
 
     const booking = await fetchBookingWindow(bookingUid);
     if (!booking) {
