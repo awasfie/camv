@@ -62,4 +62,21 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// OB-T1: wrap with Sentry for server-side instrumentation + source-map
+// upload to Sentry's servers at build time (NOT the same as
+// productionBrowserSourceMaps, which stays false — Sentry gets maps
+// privately for its own de-minification, the public bundle does not).
+const { withSentryConfig } = require('@sentry/nextjs');
+
+module.exports = withSentryConfig(nextConfig, {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Don't fail the build if Sentry creds aren't configured (e.g. CI/local).
+  disableLogger: true,
+  widenClientFileUpload: false,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+});
