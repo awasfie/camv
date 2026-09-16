@@ -1,5 +1,6 @@
 import { EgressClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyHostProof } from '@/lib/hostProof';
 
 /**
  * GET /api/record/status?roomName=...
@@ -9,13 +10,25 @@ import { NextRequest, NextResponse } from 'next/server';
  * `useIsRecording()` from @livekit/components-react only reflects the LiveKit
  * Room's live `isRecording` flag while connected.
  *
- * CAUTION: same lack of auth as /start and /stop -- do not use as-is in production.
+ * Gated by the same host-proof as /start and /stop (RA-T2, Bible v11.5):
+ * previously anyone who could guess/know a roomName could probe whether it
+ * was being recorded. This endpoint currently has no caller in the client
+ * (dead code) -- gating it now, before it's ever wired up, closes the gap
+ * for good rather than leaving an easy-to-forget TODO.
  */
 export async function GET(req: NextRequest) {
   try {
     const roomName = req.nextUrl.searchParams.get('roomName');
     if (roomName === null) {
-      return new NextResponse('Missing roomName parameter', { status: 403 });
+      return new NextResponse('Missing roomName parameter', { status: 400 });
+    }
+
+    const proof = req.headers.get('x-camv-host-proof');
+    if (!proof || !verifyHostProof(roomName, proof)) {
+      return NextResponse.json(
+        { error: 'forbidden', message: 'Only the meeting host can check recording status' },
+        { status: 403 },
+      );
     }
 
     const { LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL } = process.env;
