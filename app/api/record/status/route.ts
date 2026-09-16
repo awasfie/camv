@@ -1,6 +1,7 @@
 import { EgressClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyHostProof } from '@/lib/hostProof';
+import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 
 /**
  * GET /api/record/status?roomName=...
@@ -18,6 +19,14 @@ import { verifyHostProof } from '@/lib/hostProof';
  */
 export async function GET(req: NextRequest) {
   try {
+    const limit = await checkRateLimit(`record-status:${clientIp(req.headers)}`, 30, 60);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'rate_limited', message: 'Too many status checks, try again shortly.' },
+        { status: 429, headers: rateLimitHeaders(limit) },
+      );
+    }
+
     const roomName = req.nextUrl.searchParams.get('roomName');
     if (roomName === null) {
       return new NextResponse('Missing roomName parameter', { status: 400 });
