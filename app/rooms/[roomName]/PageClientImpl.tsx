@@ -76,7 +76,20 @@ export function PageClientImpl(props: {
     }
     const connectionDetailsResp = await fetch(url.toString());
     if (!connectionDetailsResp.ok) {
-      const message = await connectionDetailsResp.text().catch(() => connectionDetailsResp.statusText);
+      let message: string | undefined;
+      if (connectionDetailsResp.status === 410) {
+        // D-R25 (Bible v11.5): booking existed but the join window
+        // (scheduled_end + 24h) has passed -- friendly message, not a
+        // raw error, since this is an expected/normal end state, not a bug.
+        const body = await connectionDetailsResp.json().catch(() => null);
+        message =
+          body?.message ??
+          'This meeting has ended and the room is no longer joinable.';
+      } else {
+        message = await connectionDetailsResp
+          .text()
+          .catch(() => connectionDetailsResp.statusText);
+      }
       setJoinError(message || `Unable to join room (HTTP ${connectionDetailsResp.status})`);
       setPreJoinChoices(undefined);
       return;

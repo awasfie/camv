@@ -14,15 +14,17 @@ import { ConnectionDetails } from '@/lib/types';
  * cancelled/rejected via Timeway's internal booking-window API, and only
  * then issues a LiveKit token scoped to the room tw-<bookingUid>.
  *
- * Per Ahmed (2026-09-14): the link is intentionally joinable at ANY time
- * once the booking exists (not just within a tight window around the
- * scheduled slot) -- people legitimately join early, or the meeting time
- * gets changed over the phone without the booking record being updated
- * first. The security property we actually care about is "only a real,
- * still-active booking can be joined" (random/guessed room names are
- * rejected), not "only within N minutes of the original slot". If you
- * need to re-add a time restriction later, do it as an explicit,
- * generous policy decision -- not a silent default.
+ * Per Ahmed (2026-09-14): the link is intentionally joinable well beyond a
+ * tight window around the scheduled slot (not just N minutes before/after) --
+ * people legitimately join early, or the meeting time gets changed over the
+ * phone without the booking record being updated first. The security
+ * property we care about is "only a real, still-active booking can be
+ * joined" (random/guessed room names are rejected).
+ *
+ * Per Bible v11.5 D-R25 (2026-09-15): that window is NOT unbounded --
+ * it closes at scheduled_end + 24h, so a stale/leaked link eventually dies
+ * on its own instead of remaining joinable forever. See the endTime check
+ * below (410 past the window).
  *
  * Room naming convention (tw-<bookingUid>) MUST match
  * packages/app-store/livekitvideo/lib/VideoApiAdapter.ts in the timeway repo.
@@ -89,6 +91,26 @@ export async function GET(request: NextRequest) {
     }
     if (booking.status === 'CANCELLED' || booking.status === 'REJECTED') {
       return new NextResponse('This booking has been cancelled', { status: 403 });
+    }
+
+    // D-R25 (Bible v11.5): joinable from booking creation until
+    // scheduled_end + 24h, not indefinitely. A leaked/old link should die
+    // on its own instead of remaining joinable forever. Reschedules move
+    // the window automatically since we always read the live endTime from
+    // Timeway (never cached -- see fetchBookingWindow's cache: 'no-store').
+    const endTimeMs = Date.parse(booking.endTime);
+    if (!Number.isNaN(endTimeMs)) {
+      const windowCloseMs = endTimeMs + 24 * 60 * 60 * 1000;
+      if (Date.now() > windowCloseMs) {
+        return NextResponse.json(
+          {
+            error: 'meeting_ended',
+            message: 'This meeting has ended and the room is no longer joinable.',
+            endedAt: booking.endTime,
+          },
+          { status: 410 },
+        );
+      }
     }
 
     const livekitServerUrl = region ? getLiveKitURL(LIVEKIT_URL, region) : LIVEKIT_URL;
