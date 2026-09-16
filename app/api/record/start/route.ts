@@ -1,9 +1,21 @@
 import { EgressClient, EncodedFileOutput, S3Upload } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyHostProof } from '@/lib/hostProof';
+import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
   try {
+    // RA-T3 (Bible v11.5): recording start is a costly/abusable action
+    // (spins up an Egress job) -- limit per-IP regardless of hostProof
+    // validity, so a leaked/guessed proof can't be used to spam-start.
+    const limit = await checkRateLimit(`record-start:${clientIp(req.headers)}`, 10, 60);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'rate_limited', message: 'Too many recording requests, try again shortly.' },
+        { status: 429, headers: rateLimitHeaders(limit) },
+      );
+    }
+
     const roomName = req.nextUrl.searchParams.get('roomName');
 
     if (roomName === null) {

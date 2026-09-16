@@ -1,9 +1,18 @@
 import { EgressClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyHostProof } from '@/lib/hostProof';
+import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
   try {
+    const limit = await checkRateLimit(`record-stop:${clientIp(req.headers)}`, 20, 60);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: 'rate_limited', message: 'Too many recording requests, try again shortly.' },
+        { status: 429, headers: rateLimitHeaders(limit) },
+      );
+    }
+
     const roomName = req.nextUrl.searchParams.get('roomName');
 
     if (roomName === null) {
