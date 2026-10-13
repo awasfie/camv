@@ -33,8 +33,8 @@
 }
 
 .tabSelect > *[aria-pressed='true'] {
-  background-color: var(--camv-coral, #f06c62) !important;
-  color: #fff !important;
+  background-color: var(--camv-coral) !important;
+  color: var(--camv-ink) !important; /* UX.1.3: Coral carries Ink text */
 }
 
 .tabContent {

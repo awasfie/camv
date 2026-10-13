@@ -108,14 +108,14 @@ export function PageClientImpl(props: {
             {joinError ? (
               <div
                 style={{
-                  color: '#fff',
-                  background: '#102A5C',
-                  border: '1px solid #F06C62',
+                  color: 'var(--camv-white)',
+                  background: 'var(--camv-ink)',
+                  border: '1px solid var(--camv-coral)',
                   borderRadius: '0.75rem',
                   padding: '0.75rem 1rem',
                   maxWidth: '24rem',
                   fontSize: '0.875rem',
-                  fontFamily: "'Noto Sans', system-ui, -apple-system, sans-serif",
+                  fontFamily: 'var(--camv-font)',
                 }}
               >
                 {joinError}
