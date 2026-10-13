@@ -89,7 +89,7 @@ export function QualitySettings() {
             aria-pressed={quality === opt}
             onClick={() => applyQuality(opt)}
             style={{
-              border: quality === opt ? '2px solid #0090ff' : '1px solid #d1d1d1',
+              border: quality === opt ? '2px solid var(--camv-coral)' : '1px solid var(--color-border)',
             }}
           >
             {QUALITY_LABELS[opt]}

@@ -93,8 +93,8 @@ export function ConsentGate(props: {
         top: '0.75rem',
         left: '50%',
         transform: 'translateX(-50%)',
-        background: '#F06C62',
-        color: '#fff',
+        background: 'var(--camv-coral)',
+        color: 'var(--camv-ink)', // UX.1.3: Coral carries Ink text (white on Coral 3.0:1 banned)
         borderRadius: '999px',
         padding: '0.25rem 0.75rem',
         fontFamily: FONT,
@@ -123,8 +123,8 @@ export function ConsentGate(props: {
               bottom: '5rem',
               left: '50%',
               transform: 'translateX(-50%)',
-              background: '#102A5C',
-              color: '#fff',
+              background: 'var(--camv-ink)',
+              color: 'var(--camv-white)',
               borderRadius: '0.75rem',
               padding: '0.5rem 1rem',
               fontFamily: FONT,
@@ -160,8 +160,8 @@ export function ConsentGate(props: {
           dir={locale === 'ar' ? 'rtl' : 'ltr'}
           lang={locale}
           style={{
-            background: '#102A5C',
-            color: '#fff',
+            background: 'var(--camv-ink)',
+            color: 'var(--camv-white)',
             borderRadius: '1rem',
             padding: '1.5rem',
             maxWidth: '30rem',
@@ -196,14 +196,14 @@ export function ConsentGate(props: {
           <p style={{ margin: 0, lineHeight: 1.5, opacity: 0.8, fontSize: '0.85rem' }}>
             {copy.basis}
           </p>
-          {error ? <p style={{ margin: 0, color: '#F06C62' }}>{error}</p> : null}
+          {error ? <p style={{ margin: 0, color: 'var(--camv-coral)' }}>{error}</p> : null}
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button
               type="button"
               className="lk-button"
               disabled={busy}
               onClick={() => submit('granted')}
-              style={{ background: '#F06C62', color: '#0B1B3A', fontWeight: 700 }}
+              style={{ background: 'var(--camv-coral)', color: 'var(--room-bg)', fontWeight: 700 }}
             >
               {copy.agree}
             </button>
