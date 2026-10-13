@@ -27,6 +27,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # D-R50-5: conformance scripts must be runnable from the built artifact itself
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+# WC-CV-3: schema migrations, applied by `node scripts/db-migrate.mjs --apply`
+COPY --from=builder --chown=nextjs:nodejs /app/db ./db
 
 USER nextjs
 EXPOSE 3000

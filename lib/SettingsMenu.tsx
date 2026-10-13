@@ -13,6 +13,7 @@ import { CameraSettings } from './CameraSettings';
 import { MicrophoneSettings } from './MicrophoneSettings';
 import { QualitySettings } from './QualitySettings';
 import { useHost } from './HostContext';
+import { ConsentRoster } from './ConsentRoster';
 /**
  * @alpha
  */
@@ -48,6 +49,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
   const isRecording = useIsRecording();
   const [initialRecStatus, setInitialRecStatus] = React.useState(isRecording);
   const [processingRecRequest, setProcessingRecRequest] = React.useState(false);
+  const [recError, setRecError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (initialRecStatus !== isRecording) {
@@ -72,12 +74,13 @@ export function SettingsMenu(props: SettingsMenuProps) {
       response = await fetch(recordingEndpoint + `/start?roomName=${room.name}${proofParam}`);
     }
     if (response.ok) {
+      setRecError(null);
     } else {
-      console.error(
-        'Error handling recording request, check server logs:',
-        response.status,
-        response.statusText,
-      );
+      // WC-CV-3: 409 consent_required / 403 recording_not_allowed carry a
+      // plain-language message for the host.
+      const body = await response.json().catch(() => null);
+      setRecError(body?.message ?? `Recording request failed (HTTP ${response.status}).`);
+      console.error('Error handling recording request:', response.status, body?.error);
       setProcessingRecRequest(false);
     }
   };
@@ -164,6 +167,10 @@ export function SettingsMenu(props: SettingsMenuProps) {
               <button disabled={processingRecRequest} onClick={() => toggleRoomRecording()}>
                 {isRecording ? 'Stop' : 'Start'} Recording
               </button>
+              {recError ? <p role="alert">{recError}</p> : null}
+            </section>
+            <section>
+              <ConsentRoster roomName={room.name} hostProof={hostProof} />
             </section>
           </>
         )}
