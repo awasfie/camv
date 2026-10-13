@@ -30,4 +30,7 @@ export type ConnectionDetails = {
   /** Short-lived HMAC proof, present only when isHost is true, required
    * by /api/record/start and /api/record/stop to authorize the request. */
   hostProof?: string;
+  /** WC-CV-2: per-participant Cloudflare TURN credentials. Absent => the
+   * client uses LiveKit's embedded TURN on MEDIA-1. */
+  iceServers?: { urls: string[]; username?: string; credential?: string }[];
 };

@@ -219,11 +219,15 @@ function VideoConferenceComponent(props: {
     }
   }, [e2eeEnabled, room, e2eePassphrase]);
 
+  const iceServers = props.connectionDetails.iceServers;
   const connectOptions = React.useMemo((): RoomConnectOptions => {
-    return {
-      autoSubscribe: true,
-    };
-  }, []);
+    // WC-CV-2: when the token endpoint minted Cloudflare TURN credentials,
+    // livekit-client uses them instead of the server-advertised ICE servers
+    // (MEDIA-1's embedded TURN). Without them, the default path is unchanged.
+    return iceServers && iceServers.length > 0
+      ? { autoSubscribe: true, rtcConfig: { iceServers } }
+      : { autoSubscribe: true };
+  }, [iceServers]);
 
   React.useEffect(() => {
     room.on(RoomEvent.Disconnected, handleOnLeave);

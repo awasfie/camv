@@ -4,6 +4,7 @@ import { randomString } from '@/lib/client-utils';
 import { getLiveKitURL } from '@/lib/getLiveKitURL';
 import { mintHostProof } from '@/lib/hostProof';
 import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
+import { mintCloudflareIceServers } from '@/lib/turnCredentials';
 import { ConnectionDetails } from '@/lib/types';
 
 /**
@@ -160,6 +161,8 @@ export async function GET(request: NextRequest) {
       roomName,
     );
 
+    const iceServers = await mintCloudflareIceServers();
+
     const data: ConnectionDetails = {
       serverUrl: livekitServerUrl,
       roomName,
@@ -167,6 +170,7 @@ export async function GET(request: NextRequest) {
       participantName,
       isHost,
       hostProof: isHost ? mintHostProof(roomName) : undefined,
+      iceServers,
     };
     return new NextResponse(JSON.stringify(data), {
       headers: {
