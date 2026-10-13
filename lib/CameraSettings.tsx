@@ -84,7 +84,10 @@ export function CameraSettings() {
           await track.setProcessor(BackgroundProcessor({ mode: 'background-blur' }));
         } else if (backgroundType === 'image' && virtualBackgroundImagePath) {
           await track.setProcessor(
-            BackgroundProcessor({ mode: 'virtual-background', imagePath: virtualBackgroundImagePath }),
+            BackgroundProcessor({
+              mode: 'virtual-background',
+              imagePath: virtualBackgroundImagePath,
+            }),
           );
         } else {
           await track.stopProcessor();
@@ -142,13 +145,16 @@ export function CameraSettings() {
 
         {!backgroundEffectsSupported && (
           <p style={{ fontSize: '13px', opacity: 0.8, marginTop: 0 }}>
-            Background blur and virtual backgrounds aren&apos;t supported on this device or
-            browser (this needs WebGL2 support). Your camera will stay on without an effect.
+            Background blur and virtual backgrounds aren&apos;t supported on this device or browser
+            (this needs WebGL2 support). Your camera will stay on without an effect.
           </p>
         )}
 
+        {/* Coral, not danger: on the dark settings modal (Ink) danger is 2.12:1, Coral 4.66:1. */}
         {processorError && (
-          <p style={{ fontSize: '13px', color: 'var(--camv-coral)', marginTop: 0 }}>{processorError}</p>
+          <p style={{ fontSize: '13px', color: 'var(--camv-coral)', marginTop: 0 }}>
+            {processorError}
+          </p>
         )}
 
         <div
@@ -166,7 +172,10 @@ export function CameraSettings() {
             aria-pressed={backgroundType === 'none'}
             disabled={!backgroundEffectsSupported}
             style={{
-              border: backgroundType === 'none' ? '2px solid var(--camv-coral)' : '1px solid var(--color-border)',
+              border:
+                backgroundType === 'none'
+                  ? '2px solid var(--camv-coral)'
+                  : '1px solid var(--color-border)',
               minWidth: '80px',
             }}
           >
@@ -179,7 +188,10 @@ export function CameraSettings() {
             aria-pressed={backgroundType === 'blur'}
             disabled={!backgroundEffectsSupported}
             style={{
-              border: backgroundType === 'blur' ? '2px solid var(--camv-coral)' : '1px solid var(--color-border)',
+              border:
+                backgroundType === 'blur'
+                  ? '2px solid var(--camv-coral)'
+                  : '1px solid var(--color-border)',
               minWidth: '80px',
               backgroundColor: 'var(--camv-mist)',
               position: 'relative',

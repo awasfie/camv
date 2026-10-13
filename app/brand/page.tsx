@@ -32,6 +32,9 @@ const pairs: [string, string, string, boolean][] = [
   ['Slate / Mist', tokens['secondary-text'], tokens.surface, true],
   ['Ink / Coral (accent button)', tokens.ink, tokens.accent, true],
   ['White / Coral (banned for text)', tokens['surface-alt'], tokens.accent, false],
+  ['Badge text: Ink / white', tokens.ink, tokens['surface-alt'], true],
+  ['White / warning (banned for text)', tokens['surface-alt'], tokens.warning, false],
+  ['White / success (banned for small text)', tokens['surface-alt'], tokens.success, false],
   ['Room text / room bg', room.text, room.bg, true],
 ];
 
@@ -59,7 +62,9 @@ const css = `
 .tp input:disabled{opacity:.55}
 .tp .hint{font-size:${type.scale.caption.size};line-height:${type.scale.caption.line};color:var(--color-secondary-text);margin:.25rem 0 0}
 .tp .err{color:var(--color-danger)}
-.tp .badge{display:inline-block;font-size:${type.scale.caption.size};line-height:${type.scale.caption.line};letter-spacing:.02em;font-weight:${type.weights.heading};padding:.25rem .75rem;border-radius:var(--radius-full);color:var(--color-surface-alt)}
+/* Status badges: Ink text on white, semantic colour as border + dot (white text-sm on warning 3.64:1 / success 4.33:1 fails AA). */
+.tp .badge{display:inline-flex;align-items:center;gap:.375rem;font-size:${type.scale['body-sm'].size};line-height:${type.scale['body-sm'].line};font-weight:${type.weights.heading};padding:.25rem .75rem;border-radius:var(--radius-full);border:1px solid;background:var(--color-surface-alt);color:var(--color-ink)}
+.tp .badge i{width:.5rem;height:.5rem;border-radius:var(--radius-full)}
 .tp .room{background:var(--room-bg);color:var(--room-text);border-radius:var(--radius-lg);padding:1.5rem}
 .tp .tile{width:200px;height:120px;background:var(--room-tiles);border-radius:var(--radius-tile);display:grid;place-items:center;border:3px solid transparent}
 .tp .tile.speaking{border-color:var(--room-speaking-ring)}
@@ -151,7 +156,8 @@ function Controls({ l }: { l: 'en' | 'ar' }) {
       </div>
       <div className="row" style={{ marginBlockStart: '1.5rem' }}>
         {(['success', 'info', 'warning', 'danger'] as const).map((k) => (
-          <span key={k} className="badge" style={{ background: `var(--color-${k})` }}>
+          <span key={k} className="badge" style={{ borderColor: `var(--color-${k})` }}>
+            <i aria-hidden style={{ background: `var(--color-${k})` }} />
             {L.badge[k]}
           </span>
         ))}

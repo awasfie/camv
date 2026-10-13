@@ -34,4 +34,35 @@ Measurements on the local production build (`next build`, standalone `server.js`
 - 0 failed requests and 0 third-party hosts.
 - Faces loaded: Noto Sans 400/700 and Noto Sans Arabic 400/700.
 
+## Visual change declared: LiveKit theme now applies (camv#15 review 5503895535)
+
+On main 459503c the `[data-lk-theme='default']` override in `styles/globals.css` was dead. LiveKit's own rule has the same specificity and is emitted later, so it won. This PR raises the selector to `:root [data-lk-theme='default']`, so the Camv palette now reaches the prejoin and the room. **The room background changes from LiveKit #111 to Camv Ink**, and controls change from neutral grey to the navy ramp.
+
+All Coral surfaces that carry text or icons use Ink text and stay on Coral in every state. The darker Coral steps fail with Ink: hover 3.72:1, pressed 3.12:1. Mic, camera and chat controls stay on the navy ramp with white icons.
+
+Computed on local production builds (Playwright, 1440 px; room controls rendered inside the themed `<main>` with LiveKit's markup):
+
+| Surface              | main 459503c                | this PR               |
+| -------------------- | --------------------------- | --------------------- |
+| `--lk-bg`            | `#111`                      | Ink                   |
+| prejoin Join         | white on Coral **2.99**     | Ink on Coral **4.66** |
+| prejoin Join :hover  | white on coral-hover 3.75   | Ink on Coral 4.66     |
+| Leave                | white on Coral **2.99**     | Ink on Coral 4.66     |
+| Leave :hover         | white on coral-hover 3.75   | Ink on Coral 4.66     |
+| screen share on      | white on LiveKit blue 3.40  | Ink on Coral 4.66     |
+| start audio          | white on LiveKit blue 3.40  | Ink on Coral 4.66     |
+| mic / camera         | white on grey 16.67         | white on navy 10.12   |
+| mic :hover / pressed | white on grey 14.16 / 11.90 | white on navy 8.52    |
+
+Notes:
+
+- The Join button is disabled (opacity 0.5) until a username is entered; this is LiveKit's behaviour and is unchanged. It was measured enabled.
+- Settings menu selection borders (camera background, quality) change from LiveKit blue to Coral.
+
+Shots: `prejoin-desktop.png`, `room-controls.png`.
+
+## Status badges
+
+/brand badges now use Ink text on white (13.93:1), with the semantic colour shown as border and dot. White 12 px text on success (4.33:1) and on warning (3.64:1) failed AA.
+
 Ahmed: _(line and date — 24 h silence = approved, UX.0.10)_

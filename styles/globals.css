@@ -32,8 +32,11 @@ body {
 /* Override LiveKit component library theme tokens with Camv palette.  */
 /* @livekit/components-styles reads these custom properties for every  */
 /* prefab (PreJoin, VideoConference, control bar, dialogs, menus...).   */
+/* `:root` raises specificity to (0,2,0): LiveKit's own                 */
+/* [data-lk-theme=default] block (0,1,0) is emitted after this file, so */
+/* at equal specificity it won and this block was dead (camv#15 review). */
 /* ------------------------------------------------------------------ */
-[data-lk-theme='default'] {
+:root [data-lk-theme='default'] {
   --lk-font-family: var(--camv-font);
 
   --lk-bg: var(--camv-ink);
@@ -52,25 +55,35 @@ body {
 
   /* Primary accent = Camv Coral, used for active/selected controls.
    * Text on Coral is Ink (UX.1.3: Ink on Coral 4.7:1; white on Coral 3.0:1 is banned for text). */
+  /* Every text- or icon-bearing Coral surface keeps the Coral token in all states: the darker Coral steps fail
+   * with Ink text (coral-hover 3.72:1, coral-pressed 3.12:1). Hover/press feedback is the lift + shadow below. */
   --lk-accent-fg: var(--camv-ink);
   --lk-accent-bg: var(--camv-coral);
-  --lk-accent2: var(--camv-coral-hover);
-  --lk-accent3: var(--camv-coral-pressed);
-  --lk-accent4: var(--camv-coral-pressed-2);
+  --lk-accent2: var(--camv-coral);
+  --lk-accent3: var(--camv-coral);
+  --lk-accent4: var(--camv-coral);
 
-  --lk-danger-fg: var(--camv-white);
+  --lk-danger-fg: var(--camv-ink);
   --lk-danger: var(--camv-coral);
-  --lk-danger2: var(--camv-coral-hover);
-  --lk-danger3: var(--camv-coral-pressed);
-  --lk-danger4: var(--camv-coral-pressed-2);
+  --lk-danger2: var(--camv-coral);
+  --lk-danger3: var(--camv-coral);
+  --lk-danger4: var(--camv-coral);
 
+  /* Mic/camera/chat controls stay on the navy ramp with white icons (white on Coral is 2.99:1, under the 3:1
+   * non-text minimum); Coral is reserved for Join, Leave, start-audio, selected device and screen-share-on. */
   --lk-control-fg: var(--camv-white);
   --lk-control-bg: var(--camv-lk-bg3);
-  --lk-control-hover-bg: var(--camv-coral);
-  --lk-control-active-bg: var(--camv-coral);
-  --lk-control-active-hover-bg: var(--camv-coral-hover);
+  --lk-control-hover-bg: var(--camv-lk-bg4);
+  --lk-control-active-bg: var(--camv-lk-bg4);
+  --lk-control-active-hover-bg: var(--camv-lk-bg5);
 
   --lk-border-radius: 0.75rem;
+}
+
+/* LiveKit Coral surfaces that take their text colour from --lk-control-fg (white) get Ink text. */
+:root [data-lk-theme='default'] [data-lk-source='screen_share'][data-lk-enabled='true'].lk-button,
+:root [data-lk-theme='default'] .lk-chat-toggle[data-lk-unread-msgs]::after {
+  color: var(--camv-ink);
 }
 
 /* Buttons ------------------------------------------------------------- */
@@ -121,12 +134,12 @@ body {
 
 .lk-disconnect-button {
   background-color: var(--camv-coral) !important;
-  color: var(--camv-white) !important;
+  color: var(--camv-ink) !important; /* UX.1.3: Ink on Coral 4.66:1; white on Coral 2.99:1 banned */
   border-radius: 9999px;
 }
 
 .lk-disconnect-button:hover {
-  background-color: var(--camv-coral-hover) !important;
+  background-color: var(--camv-coral) !important;
 }
 
 /* Keep grouped buttons (e.g. camera toggle + device-menu chevron) reading
@@ -160,12 +173,12 @@ body {
 
 .lk-prejoin .lk-button.lk-join-button {
   background-color: var(--camv-coral);
-  color: var(--camv-white);
+  color: var(--camv-ink); /* UX.1.3: Ink on Coral */
   font-weight: 700;
 }
 
 .lk-prejoin .lk-button.lk-join-button:not(:disabled):hover {
-  background-color: var(--camv-coral-hover);
+  background-color: var(--camv-coral);
 }
 
 /* Home page header ------------------------------------------------------ */
@@ -247,4 +260,3 @@ h2 a {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
-

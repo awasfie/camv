@@ -3,10 +3,10 @@
  *
  * `tokens`, `room`, `radii`, `type` are UX.1.3 transcribed value for value, by the names UX.1.3 uses. The delivered
  * pack (`brand_camv_v1.zip`) is committed unchanged under packages/ui/brand/camv/ (per-file sha256 in
- * packages/ui/brand/camv.sha256, checked by lib/brandTokens.test.ts, which also pins every value below to UX.1.3).
+ * packages/ui/brand/camv.sha256, checked by tests/brandTokens.test.ts, which also pins every value below to UX.1.3).
  *
  * This is the only source file allowed to contain hex colour literals (UX.0.10; scripts/check-no-hex.mjs).
- * The app reads colours as CSS custom properties: app/layout.tsx renders `cssVariables()` into <head>, and
+ * The app reads colours as CSS custom properties: app/layout.tsx renders `brandStylesheet()` into <head>, and
  * styles/*.css use `var(--camv-*)` / `var(--color-*)` only.
  */
 
