@@ -42,17 +42,21 @@ All Coral surfaces that carry text or icons use Ink text and stay on Coral in ev
 
 Computed on local production builds (Playwright, 1440 px; room controls rendered inside the themed `<main>` with LiveKit's markup):
 
-| Surface              | main 459503c                | this PR               |
-| -------------------- | --------------------------- | --------------------- |
-| `--lk-bg`            | `#111`                      | Ink                   |
-| prejoin Join         | white on Coral **2.99**     | Ink on Coral **4.66** |
-| prejoin Join :hover  | white on coral-hover 3.75   | Ink on Coral 4.66     |
-| Leave                | white on Coral **2.99**     | Ink on Coral 4.66     |
-| Leave :hover         | white on coral-hover 3.75   | Ink on Coral 4.66     |
-| screen share on      | white on LiveKit blue 3.40  | Ink on Coral 4.66     |
-| start audio          | white on LiveKit blue 3.40  | Ink on Coral 4.66     |
-| mic / camera         | white on grey 16.67         | white on navy 10.12   |
-| mic :hover / pressed | white on grey 14.16 / 11.90 | white on navy 8.52    |
+| Surface                        | main 459503c                | this PR                                                 |
+| ------------------------------ | --------------------------- | ------------------------------------------------------- |
+| `--lk-bg`                      | `#111`                      | Ink                                                     |
+| prejoin Join                   | white on Coral **2.99**     | Ink on Coral **4.66**                                   |
+| prejoin Join :hover            | white on coral-hover 3.75   | Ink on Coral 4.66                                       |
+| Leave                          | white on Coral **2.99**     | Ink on Coral 4.66                                       |
+| Leave :hover                   | white on coral-hover 3.75   | Ink on Coral 4.66                                       |
+| screen share on                | white on LiveKit blue 3.40  | Ink on Coral 4.66                                       |
+| start audio                    | white on LiveKit blue 3.40  | Ink on Coral 4.66                                       |
+| start audio :hover             | white on grey 14.16         | Ink on Coral 4.66 (bf51ef5: Ink on navy 1.64, fixed)    |
+| selected device, base / :hover | white on LiveKit blue 3.40  | Ink on Coral 4.66 / 4.66                                |
+| chat, remote message           | white on accent4 2.44       | Ink on Coral 4.66 (bf51ef5: white on Coral 2.99, fixed) |
+| chat, local message            | white on grey               | white on navy 7.17                                      |
+| mic / camera                   | white on grey 16.67         | white on navy 10.12                                     |
+| mic :hover / pressed           | white on grey 14.16 / 11.90 | white on navy 8.52                                      |
 
 Notes:
 
