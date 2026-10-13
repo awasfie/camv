@@ -24,13 +24,16 @@
     "livekit-client": "2.22.2",
     "livekit-server-sdk": "2.18.0",
     "next": "15.5.26",
+    "pg": "^8.23.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hot-toast": "^2.5.2",
     "tinykeys": "^3.0.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.16",
     "@types/node": "24.12.4",
+    "@types/pg": "^8.6.1",
     "@types/react": "18.3.28",
     "@types/react-dom": "18.3.7",
     "eslint": "9.39.4",

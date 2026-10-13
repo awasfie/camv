@@ -1,5 +1,6 @@
 import { LocalAudioTrack, LocalVideoTrack, videoCodecs } from 'livekit-client';
 import { VideoCodec } from 'livekit-client';
+import type { consentCopyBundle } from './consent/copy';
 
 export interface SessionProps {
   roomName: string;
@@ -33,4 +34,13 @@ export type ConnectionDetails = {
   /** WC-CV-2: per-participant Cloudflare TURN credentials. Absent => the
    * client uses LiveKit's embedded TURN on MEDIA-1. */
   iceServers?: { urls: string[]; username?: string; credential?: string }[];
+  /** WC-CV-3: consent gate state for this room. `required` => the token has no
+   * publish permission until the participant answers the banner. */
+  consent?: {
+    required: boolean;
+    recordingAvailable: boolean;
+    reason?: string;
+    country: string | null;
+    copy?: ReturnType<typeof consentCopyBundle>;
+  };
 };

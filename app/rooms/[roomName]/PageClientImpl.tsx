@@ -8,6 +8,7 @@ import { MobileScreenShareNotice } from '@/lib/MobileScreenShareNotice';
 import { VideoFreezeWatchdog } from '@/lib/VideoFreezeWatchdog';
 import { HostProvider } from '@/lib/HostContext';
 import { RecordingIndicator } from '@/lib/RecordingIndicator';
+import { ConsentGate } from '@/lib/ConsentGate';
 import { SettingsMenu } from '@/lib/SettingsMenu';
 import { ConnectionDetails } from '@/lib/types';
 import {
@@ -244,12 +245,16 @@ function VideoConferenceComponent(props: {
         .catch((error) => {
           handleError(error);
         });
-      if (props.userChoices.videoEnabled) {
+      // WC-CV-3: in a consent-gated room the token has no publish permission
+      // until the participant answers the banner; ConsentGate turns the chosen
+      // devices on when the server grants it.
+      const consentGated = !!props.connectionDetails.consent?.required;
+      if (props.userChoices.videoEnabled && !consentGated) {
         room.localParticipant.setCameraEnabled(true).catch((error) => {
           handleError(error);
         });
       }
-      if (props.userChoices.audioEnabled) {
+      if (props.userChoices.audioEnabled && !consentGated) {
         room.localParticipant.setMicrophoneEnabled(true).catch((error) => {
           handleError(error);
         });
@@ -294,6 +299,12 @@ function VideoConferenceComponent(props: {
           />
           <DebugMode />
           <RecordingIndicator />
+          <ConsentGate
+            consent={props.connectionDetails.consent}
+            participantToken={props.connectionDetails.participantToken}
+            wantCamera={props.userChoices.videoEnabled}
+            wantMicrophone={props.userChoices.audioEnabled}
+          />
           <MobileScreenShareNotice />
           <VideoFreezeWatchdog />
         </HostProvider>

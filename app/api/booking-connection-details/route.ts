@@ -6,6 +6,10 @@ import { mintHostProof } from '@/lib/hostProof';
 import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 import { mintCloudflareIceServers } from '@/lib/turnCredentials';
 import { ConnectionDetails } from '@/lib/types';
+import { getDb } from '@/lib/db';
+import { consentCopyBundle } from '@/lib/consent/copy';
+import { normaliseCountry, recordingPolicy, type CamvOrg } from '@/lib/consent/policy';
+import { bindRoom, getOrgByHostEmail } from '@/lib/consent/repo';
 
 /**
  * Booking-aware token endpoint — TW-T7 per Execution Bible v11.1.
@@ -152,6 +156,13 @@ export async function GET(request: NextRequest) {
       randomParticipantPostfix = randomString(4);
     }
 
+    // WC-CV-3: when this room can be recorded (org found, plan includes cloud
+    // recording, country not blocked under R3-30), every participant joins
+    // WITHOUT publish permission and answers the consent banner first; the
+    // consent route grants publishing. Rooms that can never be recorded keep
+    // the old behaviour (publish on join, no banner).
+    const consent = await resolveConsent(roomName, booking.host?.email ?? null);
+
     const participantToken = await createParticipantToken(
       {
         identity: `${participantName}__${randomParticipantPostfix}`,
@@ -159,6 +170,7 @@ export async function GET(request: NextRequest) {
         metadata,
       },
       roomName,
+      !consent.required,
     );
 
     const iceServers = await mintCloudflareIceServers();
@@ -171,6 +183,7 @@ export async function GET(request: NextRequest) {
       isHost,
       hostProof: isHost ? mintHostProof(roomName) : undefined,
       iceServers,
+      consent,
     };
     return new NextResponse(JSON.stringify(data), {
       headers: {
@@ -186,13 +199,45 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function createParticipantToken(userInfo: AccessTokenOptions, roomName: string) {
+async function resolveConsent(
+  roomName: string,
+  hostEmail: string | null,
+): Promise<NonNullable<ConnectionDetails['consent']>> {
+  const db = getDb();
+  let org: CamvOrg | null = null;
+  if (db && hostEmail) {
+    try {
+      org = await getOrgByHostEmail(db, hostEmail);
+      if (org) await bindRoom(db, roomName, org.id, org.country);
+    } catch (e) {
+      // Consent store unreachable: the meeting still opens, but as a room that
+      // cannot be recorded (the record route refuses without the store).
+      console.error('consent store lookup failed', e instanceof Error ? e.message : e);
+      org = null;
+    }
+  }
+  const policy = recordingPolicy(org);
+  const country = normaliseCountry(org?.country);
+  return {
+    required: policy.allowed,
+    recordingAvailable: policy.allowed,
+    reason: policy.allowed ? undefined : policy.reason,
+    country,
+    copy: policy.allowed ? consentCopyBundle(country) : undefined,
+  };
+}
+
+function createParticipantToken(
+  userInfo: AccessTokenOptions,
+  roomName: string,
+  canPublish: boolean,
+) {
   const at = new AccessToken(API_KEY, API_SECRET, userInfo);
   at.ttl = '2h';
   const grant: VideoGrant = {
     room: roomName,
     roomJoin: true,
-    canPublish: true,
+    canPublish,
     canPublishData: true,
     canSubscribe: true,
   };

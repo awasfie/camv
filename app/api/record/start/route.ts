@@ -1,6 +1,11 @@
 import { EgressClient, EncodedFileOutput, S3Upload } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyHostProof } from '@/lib/hostProof';
+import { getDb } from '@/lib/db';
+import { checkCaptureGate, enforcePublishGate } from '@/lib/consent/gate';
+import { liveKitOps } from '@/lib/consent/livekit';
+import { deleteAfter } from '@/lib/consent/policy';
+import { insertRecording } from '@/lib/consent/repo';
 import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
@@ -68,8 +73,20 @@ export async function GET(req: NextRequest) {
       return new NextResponse('Meeting is already being recorded', { status: 409 });
     }
 
+    // WC-CV-3 / CC-70: refuse (409) until every present participant has agreed;
+    // 403 when the org may not record (no workspace, Free plan, Egypt under
+    // R3-30 (b), or turned off); 503 when the consent store is not configured.
+    const db = getDb();
+    const lk = liveKitOps();
+    const gate = await checkCaptureGate(db, lk, roomName);
+    if (!gate.ok) {
+      return NextResponse.json(gate.body, { status: gate.status });
+    }
+
+    const startedAt = new Date();
+    const objectKey = `${startedAt.toISOString()}-${roomName}.mp4`;
     const fileOutput = new EncodedFileOutput({
-      filepath: `${new Date(Date.now()).toISOString()}-${roomName}.mp4`,
+      filepath: objectKey,
       output: {
         case: 's3',
         value: new S3Upload({
@@ -83,7 +100,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    await egressClient.startRoomCompositeEgress(
+    const info = await egressClient.startRoomCompositeEgress(
       roomName,
       {
         file: fileOutput,
@@ -93,7 +110,33 @@ export async function GET(req: NextRequest) {
       },
     );
 
-    return new NextResponse(null, { status: 200 });
+    // Register the recording for the retention job BEFORE reporting success: a
+    // recording the job does not know about would never be deleted, so if the
+    // insert fails the egress is stopped and the start is reported as failed.
+    try {
+      await insertRecording(db!, {
+        roomId: roomName,
+        orgId: gate.org.id,
+        egressId: info.egressId,
+        bucket: RECORDING_S3_BUCKET,
+        objectKey,
+        startedAt,
+        retentionDays: gate.retentionDays,
+        deleteAfter: deleteAfter(startedAt, gate.retentionDays),
+        consentSnapshot: gate.consented,
+      });
+    } catch (e) {
+      await egressClient.stopEgress(info.egressId).catch(() => undefined);
+      throw e;
+    }
+
+    // Close the race between the gate check and the egress start: anyone who
+    // joined in between and has not agreed loses publish permission now.
+    await enforcePublishGate(db!, lk, roomName, true).catch((e) =>
+      console.error('publish gate after start failed', e instanceof Error ? e.message : e),
+    );
+
+    return NextResponse.json({ egressId: info.egressId, retentionDays: gate.retentionDays });
   } catch (error) {
     if (error instanceof Error) {
       return new NextResponse(error.message, { status: 500 });

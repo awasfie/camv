@@ -1,6 +1,9 @@
 import { EgressClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyHostProof } from '@/lib/hostProof';
+import { getDb } from '@/lib/db';
+import { enforcePublishGate } from '@/lib/consent/gate';
+import { liveKitOps } from '@/lib/consent/livekit';
 import { checkRateLimit, clientIp, rateLimitHeaders } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
@@ -37,6 +40,15 @@ export async function GET(req: NextRequest) {
       return new NextResponse('No active recording found', { status: 404 });
     }
     await Promise.all(activeEgresses.map((info) => egressClient.stopEgress(info.egressId)));
+
+    // WC-CV-3: nothing is captured any more, so participants who declined get
+    // their camera and microphone back.
+    const db = getDb();
+    if (db) {
+      await enforcePublishGate(db, liveKitOps(), roomName, false).catch((e) =>
+        console.error('publish gate after stop failed', e instanceof Error ? e.message : e),
+      );
+    }
 
     return new NextResponse(null, { status: 200 });
   } catch (error) {
