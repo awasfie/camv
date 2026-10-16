@@ -1,0 +1,14 @@
+{
+  "name": "@camv/conformance",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CC-68 nightly synthetic recording (WC-CV-5) and future recurring conformance runs",
+  "scripts": {
+    "cc68": "node cc68-nightly-recording.mjs run"
+  },
+  "dependencies": {
+    "@livekit/rtc-node": "1.1.0",
+    "livekit-server-sdk": "2.18.0"
+  }
+}
