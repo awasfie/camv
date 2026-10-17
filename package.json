@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@datadog/browser-logs": "^5.23.3",
+    "@family/residency": "file:vendor/family-residency-0.1.0.tgz",
     "@livekit/components-react": "2.9.24",
     "@livekit/components-styles": "1.2.0",
     "@livekit/krisp-noise-filter": "0.4.4",

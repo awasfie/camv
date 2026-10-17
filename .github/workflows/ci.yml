@@ -43,3 +43,9 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      # WC-PE-15f2: the Dockerfile deps stage installs from a clean context
+      # (only what it COPYs). Building it here catches a file: dependency
+      # (vendor/*.tgz) or lockfile the image cannot resolve before Coolify does.
+      - name: Docker deps stage (clean frozen install)
+        run: docker build --target deps -t camv-deps-ci .

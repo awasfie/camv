@@ -11,6 +11,9 @@ importers:
       '@datadog/browser-logs':
         specifier: ^5.23.3
         version: 5.35.1
+      '@family/residency':
+        specifier: file:vendor/family-residency-0.1.0.tgz
+        version: file:vendor/family-residency-0.1.0.tgz
       '@livekit/components-react':
         specifier: 2.9.24
         version: 2.9.24(@livekit/krisp-noise-filter@0.4.4(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22)))(livekit-client@2.22.2(@types/dom-mediacapture-record@1.0.22))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tslib@2.8.1)
@@ -370,6 +373,10 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@family/residency@file:vendor/family-residency-0.1.0.tgz':
+    resolution: {integrity: sha512-N8oUkwcbnehPu0LRYQ2ezpmOm8DSDJ9nBX8T49H5x8FS79/PFoXShtjLtrtLtyXaDaYhjNrbp1gZInhFb0mNaw==, tarball: file:vendor/family-residency-0.1.0.tgz}
+    version: 0.1.0
 
   '@floating-ui/core@1.8.0':
     resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
@@ -3338,6 +3345,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@family/residency@file:vendor/family-residency-0.1.0.tgz': {}
 
   '@floating-ui/core@1.8.0':
     dependencies:

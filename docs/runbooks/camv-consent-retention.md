@@ -36,6 +36,14 @@ Until R1-CV-PASSPORT pushes orgs, ops upserts each recording customer:
 The response echoes the effective policy (`recording.allowed`, `retentionDays`
 or the refusal reason). Rooms whose host maps to no org cannot be recorded.
 
+Residency guard (WC-PE-15f2, migration `0002_wc_pe_15f_residency.sql`): the body
+may carry `vertical`, `handlesPhi`, `residencyCell` (absent = keep the stored
+value, `null` = clear). A clinic org (`vertical` "clinic" or `handlesPhi: true`),
+after merging with the stored row, must pass `@family/residency`
+`checkTenantResidency` against this deployment's `RESIDENCY_CELL` env, else
+`422 {"error":"residency_cell_required|unknown|not_active|mismatch"}` and nothing
+is written. While `uae-1` is `planned` every clinic org is refused here.
+
 ## 4. Retention schedule
 
 Coolify scheduled task on the camv app, daily 03:15 UTC:
