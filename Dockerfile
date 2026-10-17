@@ -19,6 +19,18 @@ RUN corepack use pnpm@10.18.2 && pnpm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# IMGSCAN-A2 (WC-PE-7 step 4, CC-93): the runtime only runs `node server.js` and
+# `node scripts/*.mjs`, so it carries no package manager. Debian security updates
+# are applied at build (perl-base, libgnutls30), and npm/npx/corepack/yarn are
+# removed (npm bundles a vulnerable tar). Build stages keep corepack + pnpm.
+RUN apt-get update \
+  && apt-get upgrade -y --no-install-recommends \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /usr/local/lib/node_modules /opt/yarn-* \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+       /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+  && node -e "process.exit(0)"
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
