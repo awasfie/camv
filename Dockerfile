@@ -5,6 +5,8 @@ FROM base AS deps
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml ./
+# WC-PE-15f2: file: deps (vendor/*.tgz) must be present before install
+COPY vendor ./vendor
 RUN corepack use pnpm@10.18.2 && pnpm install --frozen-lockfile
 
 # ---- Build ----
